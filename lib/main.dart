@@ -1,8 +1,6 @@
 /*
-필수: 사진/동영상, 식이/체중, 기분/활동량, 거동기능, 인지기능
-옵션: 수면, 통증, 피부, 코멘트
-- 필수를 다 하면 사진 및 상태가 상단에 정리되고 옵션 및 share 버튼이 나타남
-share 2.0.4 와 image_pick, video_player 연동
+최상단 설명문, 배너광고
+선택하면 listTile 체크표시 나오게, * 3개 다 하면 share 플로팅버튼 나오게
  */
 
 import 'dart:async';
@@ -14,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
+import 'package:share/share.dart';
 
 void main() {
   runApp(MyApp());
@@ -247,242 +246,212 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: ListView(
+          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
           children: <Widget>[
             FormBuilder(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.always,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(children: <Widget>[
+                  imagePaths.isNotEmpty
+                      ? Card(
+                          child: ListTile(
+                          title: isVideo == false
+                              ? Text(
+                                  'Picture',
+                                  style: TextStyle(
+                                      fontSize: 18.0, color: Color(0xffbb4430)),
+                                )
+                              : Text(
+                                  'Video',
+                                  style: TextStyle(
+                                      fontSize: 18.0, color: Color(0xffbb4430)),
+                                ),
+                          trailing: Icon(Icons.check),
+                        ))
+                      : Card(
+                          child: FormBuilderChoiceChip(
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(context,
+                                errorText: 'required'),
+                          ]),
+                          onChanged: (value) async {
+                            if (value == 'take_picture') {
+                              isVideo = false;
+                              final pickedFile = await _picker.pickImage(
+                                source: ImageSource.camera,
+                              );
+                              if (pickedFile != null) {
+                                setState(() {
+                                  imagePaths.add(pickedFile.path);
+                                });
+                              }
+                            }
+
+                            if (value == 'gallery_picture') {
+                              isVideo = false;
+                              final pickedFile = await _picker.pickImage(
+                                source: ImageSource.gallery,
+                              );
+                              if (pickedFile != null) {
+                                setState(() {
+                                  imagePaths.add(pickedFile.path);
+                                });
+                              }
+                            }
+
+                            if (value == 'gallery_video') {
+                              isVideo = true;
+                              final pickedFile = await _picker.pickVideo(
+                                source: ImageSource.gallery,
+                              );
+                              if (pickedFile != null) {
+                                setState(() {
+                                  imagePaths.add(pickedFile.path);
+                                });
+                              }
+                            }
+
+                            if (value == 'take_video') {
+                              isVideo = true;
+                              final pickedFile = await _picker.pickVideo(
+                                source: ImageSource.camera,
+                              );
+                              if (pickedFile != null) {
+                                setState(() {
+                                  imagePaths.add(pickedFile.path);
+                                });
+                              }
+                            }
+                          },
+                          name: 'image',
+                          decoration: InputDecoration(
+                            labelStyle: TextStyle(
+                                fontSize: 22.0, color: Color(0xffbb4430)),
+                            labelText: 'Picture or Video *',
+                          ),
+                          options: [
+                            FormBuilderFieldOption(
+                                value: 'gallery_video',
+                                child: Icon(Icons.video_library)),
+                            FormBuilderFieldOption(
+                                value: 'gallery_picture',
+                                child: Icon(Icons.photo)),
+                            FormBuilderFieldOption(
+                                value: 'take_video',
+                                child: Icon(Icons.videocam)),
+                            FormBuilderFieldOption(
+                                value: 'take_picture',
+                                child: Icon(Icons.camera_alt)),
+                          ],
+                        )),
                   Card(
                       child: FormBuilderChoiceChip(
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(context,
+                          errorText: 'required'),
+                    ]),
                     name: 'diet_weight',
                     decoration: InputDecoration(
-                        labelText: 'Nutrition & Weight Maintenance'),
+                        labelStyle:
+                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
+                        labelText: 'Nutrition & Weight Maintenance *'),
                     options: [
+                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
                       FormBuilderFieldOption(
-                          value: 'red',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.red,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'orange',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.orangeAccent,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'green',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.green,
-                          )),
+                          value: 'orange', child: Text('🟠')),
+                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
                     ],
                   )),
                   Card(
                       child: FormBuilderChoiceChip(
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(context,
+                          errorText: 'required'),
+                    ]),
                     name: 'mood_activity',
-                    decoration:
-                        InputDecoration(labelText: 'Mood & Activity Level'),
+                    decoration: InputDecoration(
+                      labelText: 'Mood & Activity Level *',
+                      labelStyle:
+                          TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
+                    ),
                     options: [
+                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
                       FormBuilderFieldOption(
-                          value: 'red',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.red,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'orange',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.orangeAccent,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'green',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.green,
-                          )),
+                          value: 'orange', child: Text('🟠')),
+                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
                     ],
                   )),
                   Card(
                       child: FormBuilderChoiceChip(
                     name: 'ambulation',
-                    decoration:
-                        InputDecoration(labelText: 'Ability to Walk & Move'),
+                    decoration: InputDecoration(
+                        labelStyle:
+                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
+                        labelText: 'Ability to Walk & Move'),
                     options: [
+                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
                       FormBuilderFieldOption(
-                          value: 'red',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.red,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'orange',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.orangeAccent,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'green',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.green,
-                          )),
+                          value: 'orange', child: Text('🟠')),
+                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
                     ],
                   )),
                   Card(
                       child: FormBuilderChoiceChip(
                     name: 'cognition',
                     decoration: InputDecoration(
+                        labelStyle:
+                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
                         labelText: 'Ability of Memory & Attention'),
                     options: [
+                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
                       FormBuilderFieldOption(
-                          value: 'red',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.red,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'orange',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.orangeAccent,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'green',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.green,
-                          )),
+                          value: 'orange', child: Text('🟠')),
+                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
                     ],
                   )),
-                  Card(
-                      child: FormBuilderChoiceChip(
-                    onChanged: (value) async {
-                      if (value == 'take_picture') {
-                        final pickedFile = await _picker.pickImage(
-                          source: ImageSource.camera,
-                        );
-                        if (pickedFile != null) {
-                          setState(() {
-                            imagePaths.add(pickedFile.path);
-                          });
-                        }
-                      }
-
-                      if (value == 'gallery_picture') {
-                        final pickedFile = await _picker.pickImage(
-                          source: ImageSource.gallery,
-                        );
-                        if (pickedFile != null) {
-                          setState(() {
-                            imagePaths.add(pickedFile.path);
-                          });
-                        }
-                      }
-
-                      if (value == 'take_video') {
-                        final pickedFile = await _picker.pickVideo(
-                          source: ImageSource.camera,
-                        );
-                        if (pickedFile != null) {
-                          setState(() {
-                            imagePaths.add(pickedFile.path);
-                          });
-                        }
-                      }
-                    },
-                    name: 'image',
-                    decoration: InputDecoration(
-                      labelText: 'Picture or Video',
-                    ),
-                    options: [
-                      FormBuilderFieldOption(
-                          value: 'gallery_picture', child: Icon(Icons.photo)),
-                      FormBuilderFieldOption(
-                          value: 'take_video', child: Icon(Icons.videocam)),
-                      FormBuilderFieldOption(
-                          value: 'take_picture', child: Icon(Icons.camera_alt)),
-                    ],
-                  )),
-                  // option
                   Card(
                       child: FormBuilderChoiceChip(
                     name: 'sleep',
-                    decoration:
-                        InputDecoration(labelText: 'Sleep & Circadian Rhythm'),
+                    decoration: InputDecoration(
+                        labelStyle:
+                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
+                        labelText: 'Sleep & Circadian Rhythm'),
                     options: [
+                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
                       FormBuilderFieldOption(
-                          value: 'red',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.red,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'orange',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.orangeAccent,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'green',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.green,
-                          )),
+                          value: 'orange', child: Text('🟠')),
+                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
                     ],
                   )),
                   Card(
                       child: FormBuilderChoiceChip(
                     name: 'pain',
-                    decoration: InputDecoration(labelText: 'Pain & Treatment'),
+                    decoration: InputDecoration(
+                        labelStyle:
+                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
+                        labelText: 'Pain & Treatment'),
                     options: [
+                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
                       FormBuilderFieldOption(
-                          value: 'red',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.red,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'orange',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.orangeAccent,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'green',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.green,
-                          )),
+                          value: 'orange', child: Text('🟠')),
+                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
                     ],
                   )),
                   Card(
                       child: FormBuilderChoiceChip(
                     name: 'skin',
-                    decoration:
-                        InputDecoration(labelText: 'Skin Problem & Care'),
+                    decoration: InputDecoration(
+                        labelStyle:
+                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
+                        labelText: 'Skin Problem & Care'),
                     options: [
+                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
                       FormBuilderFieldOption(
-                          value: 'red',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.red,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'orange',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.orangeAccent,
-                          )),
-                      FormBuilderFieldOption(
-                          value: 'green',
-                          child: CircleAvatar(
-                            radius: 8.0,
-                            backgroundColor: Colors.green,
-                          )),
+                          value: 'orange', child: Text('🟠')),
+                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
                     ],
                   )),
+                  /* comment suspended
                   Card(
                     child: FormBuilderTextField(
                       name: 'comment',
@@ -506,6 +475,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       keyboardType: TextInputType.text,
                     ),
                   ),
+                  */
                 ])),
             Row(children: <Widget>[
               Expanded(
