@@ -1,6 +1,9 @@
 /*
-최상단 설명문, 배너광고
-선택하면 listTile 체크표시 나오게, * 3개 다 하면 share 플로팅버튼 나오게
+focusnode 문제
+share 기능
+color
+localization
+icon
  */
 
 import 'dart:async';
@@ -12,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,7 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'GrannyStatePic',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -234,223 +237,413 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  String text = '';
-  String subject = '';
   List<String> imagePaths = [];
+  String state1 = '';
+  String state2 = '';
+  String state3 = '';
+  String state4 = '';
+  String state5 = '';
+  String state6 = '';
+  String state7 = '';
+  String shareText = '';
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    shareText = 'Nutrition & Weight Maintenance ' +
+        state1 +
+        ' / Mood & Activity Level ' +
+        state2;
+    if (state3 != '')
+      shareText = shareText + ' / Ability to Walk & Move ' + state3;
+    if (state4 != '')
+      shareText = shareText + ' / Ability of Memory & Attention ' + state4;
+    if (state5 != '')
+      shareText = shareText + ' / Sleep & Circadian Rhythm ' + state5;
+    if (state6 != '') shareText = shareText + ' / Pain & Treatment ' + state6;
+    if (state7 != '')
+      shareText = shareText + ' / Skin Problem & Care ' + state7;
+
+    return SafeArea(
+        child: Scaffold(
+      floatingActionButton:
+          Column(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+        SizedBox(
+          height: 80.0,
+        ),
+        if (imagePaths.isNotEmpty && state1 != '' && state2 != '')
+          FloatingActionButton(
+            mini: true,
+            focusNode: FocusNode(),
+            onPressed: () {
+              Share.shareFiles(imagePaths, text: shareText);
+              print(shareText);
+            },
+            heroTag: 'Share as Save',
+            tooltip: 'Share as Save',
+            child: const Icon(Icons.share),
+          ),
+      ]),
       appBar: AppBar(
-        title: Text('widget.title'),
+        title: Text('GrannyStatePic'),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.refresh),
+              tooltip: 'Reset',
+              onPressed: () {
+                setState(() {
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: Duration.zero,
+                      pageBuilder: (_, __, ___) => MyHomePage(),
+                    ),
+                  );
+                });
+              })
+        ],
       ),
       body: Center(
         child: ListView(
           padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
           children: <Widget>[
+            ListTile(
+              title: Text('Share as Save Pic with State of Granny'),
+              subtitle: Text(
+                  'to assess elderly at nursery/hospital\nget help from caregiver/nurse'),
+            ),
             FormBuilder(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(children: <Widget>[
-                  imagePaths.isNotEmpty
-                      ? Card(
-                          child: ListTile(
-                          title: isVideo == false
-                              ? Text(
-                                  'Picture',
-                                  style: TextStyle(
-                                      fontSize: 18.0, color: Color(0xffbb4430)),
-                                )
-                              : Text(
-                                  'Video',
-                                  style: TextStyle(
-                                      fontSize: 18.0, color: Color(0xffbb4430)),
-                                ),
-                          trailing: Icon(Icons.check),
-                        ))
-                      : Card(
-                          child: FormBuilderChoiceChip(
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(context,
-                                errorText: 'required'),
-                          ]),
-                          onChanged: (value) async {
-                            if (value == 'take_picture') {
-                              isVideo = false;
-                              final pickedFile = await _picker.pickImage(
-                                source: ImageSource.camera,
-                              );
-                              if (pickedFile != null) {
-                                setState(() {
-                                  imagePaths.add(pickedFile.path);
-                                });
-                              }
-                            }
+                  Card(
+                      child: imagePaths.isNotEmpty
+                          ? ListTile(
+                              title: isVideo == false
+                                  ? Text(
+                                      'Picture',
+                                      style: TextStyle(
+                                          fontSize: 18.0,
+                                          color: Color(0xffbb4430)),
+                                    )
+                                  : Text(
+                                      'Video',
+                                      style: TextStyle(
+                                          fontSize: 18.0,
+                                          color: Color(0xffbb4430)),
+                                    ),
+                              trailing: Icon(Icons.check),
+                            )
+                          : FormBuilderChoiceChip(
+                              focusNode: _formKey.currentState?.fields['image']!
+                                  .effectiveFocusNode,
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(context,
+                                    errorText: 'required'),
+                              ]),
+                              onChanged: (value) async {
+                                if (value == 'take_picture') {
+                                  isVideo = false;
+                                  final pickedFile = await _picker.pickImage(
+                                    source: ImageSource.camera,
+                                  );
+                                  if (pickedFile != null) {
+                                    setState(() {
+                                      imagePaths.add(pickedFile.path);
+                                    });
+                                  }
+                                }
 
-                            if (value == 'gallery_picture') {
-                              isVideo = false;
-                              final pickedFile = await _picker.pickImage(
-                                source: ImageSource.gallery,
-                              );
-                              if (pickedFile != null) {
-                                setState(() {
-                                  imagePaths.add(pickedFile.path);
-                                });
-                              }
-                            }
+                                if (value == 'gallery_picture') {
+                                  isVideo = false;
+                                  final pickedFile = await _picker.pickImage(
+                                    source: ImageSource.gallery,
+                                  );
+                                  if (pickedFile != null) {
+                                    setState(() {
+                                      imagePaths.add(pickedFile.path);
+                                    });
+                                  }
+                                }
 
-                            if (value == 'gallery_video') {
-                              isVideo = true;
-                              final pickedFile = await _picker.pickVideo(
-                                source: ImageSource.gallery,
-                              );
-                              if (pickedFile != null) {
-                                setState(() {
-                                  imagePaths.add(pickedFile.path);
-                                });
-                              }
-                            }
+                                if (value == 'gallery_video') {
+                                  isVideo = true;
+                                  final pickedFile = await _picker.pickVideo(
+                                    source: ImageSource.gallery,
+                                  );
+                                  if (pickedFile != null) {
+                                    setState(() {
+                                      imagePaths.add(pickedFile.path);
+                                    });
+                                  }
+                                }
 
-                            if (value == 'take_video') {
-                              isVideo = true;
-                              final pickedFile = await _picker.pickVideo(
-                                source: ImageSource.camera,
-                              );
-                              if (pickedFile != null) {
+                                if (value == 'take_video') {
+                                  isVideo = true;
+                                  final pickedFile = await _picker.pickVideo(
+                                    source: ImageSource.camera,
+                                  );
+                                  if (pickedFile != null) {
+                                    setState(() {
+                                      imagePaths.add(pickedFile.path);
+                                    });
+                                  }
+                                }
+                              },
+                              name: 'image',
+                              decoration: InputDecoration(
+                                labelStyle: TextStyle(
+                                    fontSize: 22.0, color: Color(0xffbb4430)),
+                                labelText: 'Picture or Video *',
+                              ),
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: 'gallery_video',
+                                    child: Icon(Icons.video_library)),
+                                FormBuilderFieldOption(
+                                    value: 'gallery_picture',
+                                    child: Icon(Icons.photo)),
+                                FormBuilderFieldOption(
+                                    value: 'take_video',
+                                    child: Icon(Icons.videocam)),
+                                FormBuilderFieldOption(
+                                    value: 'take_picture',
+                                    child: Icon(Icons.camera_alt)),
+                              ],
+                            )),
+                  Card(
+                      child: state1 != ''
+                          ? ListTile(
+                              title: Text(
+                                'Nutrition & Weight Maintenance',
+                                style: TextStyle(
+                                    fontSize: 18.0, color: Color(0xffbb4430)),
+                              ),
+                              trailing: Text(state1),
+                            )
+                          : FormBuilderChoiceChip(
+                              focusNode: _formKey.currentState
+                                  ?.fields['diet_weight']!.effectiveFocusNode,
+                              onChanged: (value) {
                                 setState(() {
-                                  imagePaths.add(pickedFile.path);
+                                  state1 = value.toString();
                                 });
-                              }
-                            }
-                          },
-                          name: 'image',
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(
-                                fontSize: 22.0, color: Color(0xffbb4430)),
-                            labelText: 'Picture or Video *',
-                          ),
-                          options: [
-                            FormBuilderFieldOption(
-                                value: 'gallery_video',
-                                child: Icon(Icons.video_library)),
-                            FormBuilderFieldOption(
-                                value: 'gallery_picture',
-                                child: Icon(Icons.photo)),
-                            FormBuilderFieldOption(
-                                value: 'take_video',
-                                child: Icon(Icons.videocam)),
-                            FormBuilderFieldOption(
-                                value: 'take_picture',
-                                child: Icon(Icons.camera_alt)),
-                          ],
-                        )),
+                              },
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(context,
+                                    errorText: 'required'),
+                              ]),
+                              name: 'diet_weight',
+                              decoration: InputDecoration(
+                                  labelStyle: TextStyle(
+                                      fontSize: 22.0, color: Color(0xffbb4430)),
+                                  labelText:
+                                      'Nutrition & Weight Maintenance *'),
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: '🔴', child: Text('🔴')),
+                                FormBuilderFieldOption(
+                                    value: '🟠', child: Text('🟠')),
+                                FormBuilderFieldOption(
+                                    value: '🟢', child: Text('🟢')),
+                              ],
+                            )),
                   Card(
-                      child: FormBuilderChoiceChip(
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(context,
-                          errorText: 'required'),
-                    ]),
-                    name: 'diet_weight',
-                    decoration: InputDecoration(
-                        labelStyle:
-                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
-                        labelText: 'Nutrition & Weight Maintenance *'),
-                    options: [
-                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
-                      FormBuilderFieldOption(
-                          value: 'orange', child: Text('🟠')),
-                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
-                    ],
-                  )),
+                      child: state2 != ''
+                          ? ListTile(
+                              title: Text(
+                                'Mood & Activity Level',
+                                style: TextStyle(
+                                    fontSize: 18.0, color: Color(0xffbb4430)),
+                              ),
+                              trailing: Text(state2),
+                            )
+                          : FormBuilderChoiceChip(
+                              focusNode: _formKey.currentState
+                                  ?.fields['mood_activity']!.effectiveFocusNode,
+                              onChanged: (value) {
+                                setState(() {
+                                  state2 = value.toString();
+                                });
+                              },
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(context,
+                                    errorText: 'required'),
+                              ]),
+                              name: 'mood_activity',
+                              decoration: InputDecoration(
+                                labelText: 'Mood & Activity Level *',
+                                labelStyle: TextStyle(
+                                    fontSize: 22.0, color: Color(0xffbb4430)),
+                              ),
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: '🔴', child: Text('🔴')),
+                                FormBuilderFieldOption(
+                                    value: '🟠', child: Text('🟠')),
+                                FormBuilderFieldOption(
+                                    value: '🟢', child: Text('🟢')),
+                              ],
+                            )),
                   Card(
-                      child: FormBuilderChoiceChip(
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(context,
-                          errorText: 'required'),
-                    ]),
-                    name: 'mood_activity',
-                    decoration: InputDecoration(
-                      labelText: 'Mood & Activity Level *',
-                      labelStyle:
-                          TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
-                    ),
-                    options: [
-                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
-                      FormBuilderFieldOption(
-                          value: 'orange', child: Text('🟠')),
-                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
-                    ],
-                  )),
+                      child: state3 != ''
+                          ? ListTile(
+                              title: Text(
+                                'Ability to Walk & Move',
+                                style: TextStyle(
+                                    fontSize: 18.0, color: Color(0xffbb4430)),
+                              ),
+                              trailing: Text(state3),
+                            )
+                          : FormBuilderChoiceChip(
+                              focusNode: _formKey.currentState
+                                  ?.fields['ambulation']!.effectiveFocusNode,
+                              onChanged: (value) {
+                                setState(() {
+                                  state3 = value.toString();
+                                });
+                              },
+                              name: 'ambulation',
+                              decoration: InputDecoration(
+                                  labelStyle: TextStyle(
+                                      fontSize: 22.0, color: Color(0xffbb4430)),
+                                  labelText: 'Ability to Walk & Move'),
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: '🔴', child: Text('🔴')),
+                                FormBuilderFieldOption(
+                                    value: '🟠', child: Text('🟠')),
+                                FormBuilderFieldOption(
+                                    value: '🟢', child: Text('🟢')),
+                              ],
+                            )),
                   Card(
-                      child: FormBuilderChoiceChip(
-                    name: 'ambulation',
-                    decoration: InputDecoration(
-                        labelStyle:
-                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
-                        labelText: 'Ability to Walk & Move'),
-                    options: [
-                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
-                      FormBuilderFieldOption(
-                          value: 'orange', child: Text('🟠')),
-                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
-                    ],
-                  )),
+                      child: state4 != ''
+                          ? ListTile(
+                              title: Text(
+                                'Ability of Memory & Attention',
+                                style: TextStyle(
+                                    fontSize: 18.0, color: Color(0xffbb4430)),
+                              ),
+                              trailing: Text(state4),
+                            )
+                          : FormBuilderChoiceChip(
+                              focusNode: _formKey.currentState
+                                  ?.fields['cognition']!.effectiveFocusNode,
+                              onChanged: (value) {
+                                setState(() {
+                                  state4 = value.toString();
+                                });
+                              },
+                              name: 'cognition',
+                              decoration: InputDecoration(
+                                  labelStyle: TextStyle(
+                                      fontSize: 22.0, color: Color(0xffbb4430)),
+                                  labelText: 'Ability of Memory & Attention'),
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: '🔴', child: Text('🔴')),
+                                FormBuilderFieldOption(
+                                    value: '🟠', child: Text('🟠')),
+                                FormBuilderFieldOption(
+                                    value: '🟢', child: Text('🟢')),
+                              ],
+                            )),
                   Card(
-                      child: FormBuilderChoiceChip(
-                    name: 'cognition',
-                    decoration: InputDecoration(
-                        labelStyle:
-                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
-                        labelText: 'Ability of Memory & Attention'),
-                    options: [
-                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
-                      FormBuilderFieldOption(
-                          value: 'orange', child: Text('🟠')),
-                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
-                    ],
-                  )),
+                      child: state5 != ''
+                          ? ListTile(
+                              title: Text(
+                                'Sleep & Circadian Rhythm',
+                                style: TextStyle(
+                                    fontSize: 18.0, color: Color(0xffbb4430)),
+                              ),
+                              trailing: Text(state5),
+                            )
+                          : FormBuilderChoiceChip(
+                              focusNode: _formKey.currentState?.fields['sleep']!
+                                  .effectiveFocusNode,
+                              onChanged: (value) {
+                                setState(() {
+                                  state5 = value.toString();
+                                });
+                              },
+                              name: 'sleep',
+                              decoration: InputDecoration(
+                                  labelStyle: TextStyle(
+                                      fontSize: 22.0, color: Color(0xffbb4430)),
+                                  labelText: 'Sleep & Circadian Rhythm'),
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: '🔴', child: Text('🔴')),
+                                FormBuilderFieldOption(
+                                    value: '🟠', child: Text('🟠')),
+                                FormBuilderFieldOption(
+                                    value: '🟢', child: Text('🟢')),
+                              ],
+                            )),
                   Card(
-                      child: FormBuilderChoiceChip(
-                    name: 'sleep',
-                    decoration: InputDecoration(
-                        labelStyle:
-                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
-                        labelText: 'Sleep & Circadian Rhythm'),
-                    options: [
-                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
-                      FormBuilderFieldOption(
-                          value: 'orange', child: Text('🟠')),
-                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
-                    ],
-                  )),
+                      child: state6 != ''
+                          ? ListTile(
+                              title: Text(
+                                'Pain & Treatment',
+                                style: TextStyle(
+                                    fontSize: 18.0, color: Color(0xffbb4430)),
+                              ),
+                              trailing: Text(state6),
+                            )
+                          : FormBuilderChoiceChip(
+                              focusNode: _formKey.currentState?.fields['pain']!
+                                  .effectiveFocusNode,
+                              onChanged: (value) {
+                                setState(() {
+                                  state6 = value.toString();
+                                });
+                              },
+                              name: 'pain',
+                              decoration: InputDecoration(
+                                  labelStyle: TextStyle(
+                                      fontSize: 22.0, color: Color(0xffbb4430)),
+                                  labelText: 'Pain & Treatment'),
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: '🔴', child: Text('🔴')),
+                                FormBuilderFieldOption(
+                                    value: '🟠', child: Text('🟠')),
+                                FormBuilderFieldOption(
+                                    value: '🟢', child: Text('🟢')),
+                              ],
+                            )),
                   Card(
-                      child: FormBuilderChoiceChip(
-                    name: 'pain',
-                    decoration: InputDecoration(
-                        labelStyle:
-                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
-                        labelText: 'Pain & Treatment'),
-                    options: [
-                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
-                      FormBuilderFieldOption(
-                          value: 'orange', child: Text('🟠')),
-                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
-                    ],
-                  )),
-                  Card(
-                      child: FormBuilderChoiceChip(
-                    name: 'skin',
-                    decoration: InputDecoration(
-                        labelStyle:
-                            TextStyle(fontSize: 22.0, color: Color(0xffbb4430)),
-                        labelText: 'Skin Problem & Care'),
-                    options: [
-                      FormBuilderFieldOption(value: 'red', child: Text('🔴')),
-                      FormBuilderFieldOption(
-                          value: 'orange', child: Text('🟠')),
-                      FormBuilderFieldOption(value: 'green', child: Text('🟢')),
-                    ],
-                  )),
+                      child: state7 != ''
+                          ? ListTile(
+                              title: Text(
+                                'Skin Problem & Care',
+                                style: TextStyle(
+                                    fontSize: 18.0, color: Color(0xffbb4430)),
+                              ),
+                              trailing: Text(state7),
+                            )
+                          : FormBuilderChoiceChip(
+                              focusNode: _formKey.currentState?.fields['skin']!
+                                  .effectiveFocusNode,
+                              onChanged: (value) {
+                                setState(() {
+                                  state7 = value.toString();
+                                });
+                              },
+                              name: 'skin',
+                              decoration: InputDecoration(
+                                  labelStyle: TextStyle(
+                                      fontSize: 22.0, color: Color(0xffbb4430)),
+                                  labelText: 'Skin Problem & Care'),
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: '🔴', child: Text('🔴')),
+                                FormBuilderFieldOption(
+                                    value: '🟠', child: Text('🟠')),
+                                FormBuilderFieldOption(
+                                    value: '🟢', child: Text('🟢')),
+                              ],
+                            )),
                   /* comment suspended
                   Card(
                     child: FormBuilderTextField(
@@ -477,30 +670,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   */
                 ])),
-            Row(children: <Widget>[
-              Expanded(
-                child: MaterialButton(
-                  color: Theme.of(context).accentColor,
-                  child:
-                      const Icon(Icons.input_rounded, color: Color(0xffefe6dd)),
-                  onPressed: () {
-                    _formKey.currentState?.save();
-                    if (_formKey.currentState!.validate()) {
-                      print(_formKey.currentState?.value);
-                      setState(() {
-                        // Navigator.of(context).push(_createRoute(2));
-                      });
-                    } else {
-                      // print(AppLocalizations.of(context).question_error);
-                    }
-                  },
-                ),
-              ),
-            ]),
           ],
         ),
       ),
-    );
+    ));
   }
 
   Text? _getRetrieveErrorWidget() {
