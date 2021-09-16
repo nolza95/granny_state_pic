@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'GrannyStatePic',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -65,8 +66,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void requestTempDirectory() async {
     Directory tempDirectory = await getTemporaryDirectory();
     tempPath = tempDirectory.path;
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    appDocPath = appDocDir.path;
   }
 
   @override
@@ -92,58 +91,66 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    shareText = 'Nutrition & Weight Maintenance ' +
+    shareText = 'Nutrition & Weight Maintenance\n' +
         state1 +
-        '\nMood & Activity Level ' +
+        '\n\nMood & Activity Level\n' +
         state2;
     if (state3 != '')
-      shareText = shareText + '\nAbility to Walk & Move ' + state3;
+      shareText = shareText + '\n\nAbility to Walk & Move\n' + state3;
     if (state4 != '')
-      shareText = shareText + '\nAbility of Memory & Attention ' + state4;
+      shareText = shareText + '\n\nAbility of Memory & Attention\n' + state4;
     if (state5 != '')
-      shareText = shareText + '\nSleep & Circadian Rhythm ' + state5;
-    if (state6 != '') shareText = shareText + ' / Pain & Treatment ' + state6;
-    if (state7 != '') shareText = shareText + '\nSkin Problem & Care ' + state7;
-    shareText =
-        shareText + '\nlkc\n' + DateFormat('yyyy-MM-dd').format(DateTime.now());
+      shareText = shareText + '\n\nSleep & Circadian Rhythm\n' + state5;
+    if (state6 != '') shareText = shareText + '\n\nPain & Treatment\n' + state6;
+    if (state7 != '')
+      shareText = shareText + '\n\nSkin Problem & Care\n' + state7;
+    final threadText = shareText;
+    shareText = 'Granny\'s State, ' +
+        DateFormat('yyyy-MM-dd').format(DateTime.now()) +
+        '\n\n\n' +
+        shareText;
 
-    final Uint8List fontData =
-        File('$appDocPath/assets/fonts/NotoSansKR-Medium.otf')
-            .readAsBytesSync();
-    final ttf = pw.Font.ttf(fontData.buffer.asByteData());
-
-    Future<void> _pdf(dynamic txt) async {
+    Future<void> _pdf() async {
       final pdf = pw.Document();
+      var data = await rootBundle.load("assets/fonts/NanumGothic-Regular.ttf");
+      var myFont = pw.Font.ttf(data);
 
       pdf.addPage(pw.Page(
         build: (pw.Context context) => pw.Container(
-          padding: pw.EdgeInsets.all(16.0),
+          padding: pw.EdgeInsets.all(8.0),
           alignment: pw.Alignment.center,
           color: PdfColors.white,
           child: pw.Text(
             shareText,
             style: pw.TextStyle(
-              font: ttf,
-              fontWeight: pw.FontWeight.bold,
-              fontSize: 18,
+              font: myFont,
+              // fontWeight: pw.FontWeight.bold,
+              fontSize: 26,
             ),
           ),
         ),
       ));
-      final file = File('$tempPath/final.pdf');
+
+      final file = File('$tempPath/granny.pdf');
+      print(tempPath);
       await file.writeAsBytes(await pdf.save());
-      final document = await render.PdfDocument.openFile('$tempPath/final.pdf');
+      final document =
+          await render.PdfDocument.openFile('$tempPath/granny.pdf');
 
       final page = await document.getPage(1);
       final pageImage = await page.render(
         width: page.width,
         height: page.height,
       );
-      final file1 = File('$tempPath/final.png');
+      final file1 = File('$tempPath/granny.png');
       await file1.writeAsBytes(pageImage!.bytes);
       await page.close();
-      imagePaths.add('$tempPath/final.png');
-      Share.shareFiles(imagePaths);
+      if (imagePaths.length > 1) imagePaths.removeLast();
+      imagePaths.add('$tempPath/granny.png');
+      Share.shareFiles(imagePaths,
+          subject: 'Granny\'s State, ' +
+              DateFormat('yyyy-MM-dd').format(DateTime.now()),
+          text: threadText);
     }
 
     return SafeArea(
@@ -158,9 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mini: true,
             focusNode: FocusNode(),
             onPressed: () {
-              _pdf(shareText);
-
-              print(shareText);
+              _pdf();
             },
             heroTag: 'Share as Save',
             tooltip: 'Share as Save',
