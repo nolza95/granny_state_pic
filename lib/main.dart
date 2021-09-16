@@ -9,11 +9,8 @@ color
 ads
 testID->realID
 
-icon
-
 localization
-
- */
+*/
 
 import 'dart:async';
 import 'dart:io';
@@ -32,6 +29,7 @@ import 'package:native_pdf_renderer/native_pdf_renderer.dart' as render;
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -269,6 +267,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
             ]),
         appBar: AppBar(
+          leading: IconButton(
+              icon: Image.asset('assets/grannystatepic.png'), onPressed: () {}),
           title: Text(
             'GrannyStatePic',
             style: TextStyle(color: Color(0xffedddd4)),
