@@ -15,14 +15,16 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:video_player/video_player.dart';
+import 'package:pdf/pdf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:native_pdf_renderer/native_pdf_renderer.dart';
+import 'package:native_pdf_renderer/native_pdf_renderer.dart' as render;
+import 'package:path_provider/path_provider.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,9 +59,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final ImagePicker _picker = ImagePicker();
 
+  String? tempPath;
+  String? appDocPath;
+
+  void requestTempDirectory() async {
+    Directory tempDirectory = await getTemporaryDirectory();
+    tempPath = tempDirectory.path;
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    appDocPath = appDocDir.path;
+  }
+
   @override
   void initState() {
     super.initState();
+    requestTempDirectory();
   }
 
   @override
@@ -81,48 +94,55 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     shareText = 'Nutrition & Weight Maintenance ' +
         state1 +
-        ' / Mood & Activity Level ' +
+        '\nMood & Activity Level ' +
         state2;
     if (state3 != '')
-      shareText = shareText + ' / Ability to Walk & Move ' + state3;
+      shareText = shareText + '\nAbility to Walk & Move ' + state3;
     if (state4 != '')
-      shareText = shareText + ' / Ability of Memory & Attention ' + state4;
+      shareText = shareText + '\nAbility of Memory & Attention ' + state4;
     if (state5 != '')
-      shareText = shareText + ' / Sleep & Circadian Rhythm ' + state5;
+      shareText = shareText + '\nSleep & Circadian Rhythm ' + state5;
     if (state6 != '') shareText = shareText + ' / Pain & Treatment ' + state6;
-    if (state7 != '')
-      shareText = shareText + ' / Skin Problem & Care ' + state7;
+    if (state7 != '') shareText = shareText + '\nSkin Problem & Care ' + state7;
+    shareText =
+        shareText + '\nlkc\n' + DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     final Uint8List fontData =
-        File('lib/OpenSans-Regular.ttf').readAsBytesSync();
+        File('$appDocPath/assets/fonts/NotoSansKR-Medium.otf')
+            .readAsBytesSync();
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
 
     Future<void> _pdf(dynamic txt) async {
       final pdf = pw.Document();
-      final Uint8List fontData =
-          File('assets/fonts/OpenSans-Regular.ttf').readAsBytesSync();
-      final ttf = pw.Font.ttf(fontData.buffer.asByteData());
 
       pdf.addPage(pw.Page(
-        build: (pw.Context context) => pw.Column(children: [
-          pw.Image(pw.MemoryImage(File(imagePaths.first).readAsBytesSync())),
-          pw.Text(shareText, style: pw.TextStyle(font: ttf, fontSize: 40))
-        ]),
+        build: (pw.Context context) => pw.Container(
+          padding: pw.EdgeInsets.all(16.0),
+          alignment: pw.Alignment.center,
+          color: PdfColors.white,
+          child: pw.Text(
+            shareText,
+            style: pw.TextStyle(
+              font: ttf,
+              fontWeight: pw.FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+        ),
       ));
-      final file = File('final.pdf');
+      final file = File('$tempPath/final.pdf');
       await file.writeAsBytes(await pdf.save());
-      final document = await PdfDocument.openFile('final.pdf');
+      final document = await render.PdfDocument.openFile('$tempPath/final.pdf');
+
       final page = await document.getPage(1);
       final pageImage = await page.render(
         width: page.width,
         height: page.height,
-        format: PdfPageFormat.PNG,
       );
-      final file1 = File('final.png');
-      await file.writeAsBytes(pageImage!.bytes);
+      final file1 = File('$tempPath/final.png');
+      await file1.writeAsBytes(pageImage!.bytes);
       await page.close();
-      imagePaths.removeAt(0);
-      imagePaths.add('final.png');
+      imagePaths.add('$tempPath/final.png');
       Share.shareFiles(imagePaths);
     }
 
@@ -304,11 +324,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                       'Nutrition & Weight Maintenance *'),
                               options: [
                                 FormBuilderFieldOption(
-                                    value: '🔴', child: Text('🔴')),
+                                    value: '1/5', child: Text('1/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟠', child: Text('🟠')),
+                                    value: '2/5', child: Text('2/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟢', child: Text('🟢')),
+                                    value: '3/5', child: Text('3/5')),
+                                FormBuilderFieldOption(
+                                    value: '4/5', child: Text('4/5')),
+                                FormBuilderFieldOption(
+                                    value: '5/5', child: Text('5/5')),
                               ],
                             )),
                   Card(
@@ -341,11 +365,15 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               options: [
                                 FormBuilderFieldOption(
-                                    value: '🔴', child: Text('🔴')),
+                                    value: '1/5', child: Text('1/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟠', child: Text('🟠')),
+                                    value: '2/5', child: Text('2/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟢', child: Text('🟢')),
+                                    value: '3/5', child: Text('3/5')),
+                                FormBuilderFieldOption(
+                                    value: '4/5', child: Text('4/5')),
+                                FormBuilderFieldOption(
+                                    value: '5/5', child: Text('5/5')),
                               ],
                             )),
                   Card(
@@ -373,11 +401,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                   labelText: 'Ability to Walk & Move'),
                               options: [
                                 FormBuilderFieldOption(
-                                    value: '🔴', child: Text('🔴')),
+                                    value: '1/5', child: Text('1/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟠', child: Text('🟠')),
+                                    value: '2/5', child: Text('2/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟢', child: Text('🟢')),
+                                    value: '3/5', child: Text('3/5')),
+                                FormBuilderFieldOption(
+                                    value: '4/5', child: Text('4/5')),
+                                FormBuilderFieldOption(
+                                    value: '5/5', child: Text('5/5')),
                               ],
                             )),
                   Card(
@@ -405,11 +437,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                   labelText: 'Ability of Memory & Attention'),
                               options: [
                                 FormBuilderFieldOption(
-                                    value: '🔴', child: Text('🔴')),
+                                    value: '1/5', child: Text('1/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟠', child: Text('🟠')),
+                                    value: '2/5', child: Text('2/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟢', child: Text('🟢')),
+                                    value: '3/5', child: Text('3/5')),
+                                FormBuilderFieldOption(
+                                    value: '4/5', child: Text('4/5')),
+                                FormBuilderFieldOption(
+                                    value: '5/5', child: Text('5/5')),
                               ],
                             )),
                   Card(
@@ -437,11 +473,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                   labelText: 'Sleep & Circadian Rhythm'),
                               options: [
                                 FormBuilderFieldOption(
-                                    value: '🔴', child: Text('🔴')),
+                                    value: '1/5', child: Text('1/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟠', child: Text('🟠')),
+                                    value: '2/5', child: Text('2/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟢', child: Text('🟢')),
+                                    value: '3/5', child: Text('3/5')),
+                                FormBuilderFieldOption(
+                                    value: '4/5', child: Text('4/5')),
+                                FormBuilderFieldOption(
+                                    value: '5/5', child: Text('5/5')),
                               ],
                             )),
                   Card(
@@ -469,11 +509,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                   labelText: 'Pain & Treatment'),
                               options: [
                                 FormBuilderFieldOption(
-                                    value: '🔴', child: Text('🔴')),
+                                    value: '1/5', child: Text('1/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟠', child: Text('🟠')),
+                                    value: '2/5', child: Text('2/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟢', child: Text('🟢')),
+                                    value: '3/5', child: Text('3/5')),
+                                FormBuilderFieldOption(
+                                    value: '4/5', child: Text('4/5')),
+                                FormBuilderFieldOption(
+                                    value: '5/5', child: Text('5/5')),
                               ],
                             )),
                   Card(
@@ -501,11 +545,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                   labelText: 'Skin Problem & Care'),
                               options: [
                                 FormBuilderFieldOption(
-                                    value: '🔴', child: Text('🔴')),
+                                    value: '1/5', child: Text('1/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟠', child: Text('🟠')),
+                                    value: '2/5', child: Text('2/5')),
                                 FormBuilderFieldOption(
-                                    value: '🟢', child: Text('🟢')),
+                                    value: '3/5', child: Text('3/5')),
+                                FormBuilderFieldOption(
+                                    value: '4/5', child: Text('4/5')),
+                                FormBuilderFieldOption(
+                                    value: '5/5', child: Text('5/5')),
                               ],
                             )),
                   /* comment suspended
