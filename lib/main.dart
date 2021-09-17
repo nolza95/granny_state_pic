@@ -5,11 +5,6 @@ color
 3. Champagne Pink #edddd4
 4. International Orange Golden Gate Bridge #c44536
 5. Liver Organ #772e25
-
-ads
-testID->realID
-
-localization
 */
 
 import 'dart:async';
@@ -30,6 +25,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,8 +58,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en', ''),
+        Locale('ko', ''),
+      ],
       debugShowCheckedModeBanner: false,
-      title: 'GrannyStatePic',
+      onGenerateTitle: (context) => AppLocalizations.of(context).grannystatepic,
       theme: ThemeData(
         primarySwatch: createMaterialColor(Color(0xff772e25)),
       ),
@@ -100,8 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
       size: size,
       request: request,
       adUnitId: Platform.isAndroid
-          ? 'ca-app-pub-3940256099942544/6300978111' //testID !!!
-          : 'ca-app-pub-3940256099942544/6300978111', //testID !!!
+          ? 'ca-app-pub-3057180812926493/3593103064' //androidID !!!
+          : 'ca-app-pub-3057180812926493/3593103064', //androidID !!!
       listener: BannerAdListener(
         onAdLoaded: (Ad ad) {
           print('$BannerAd loaded.');
@@ -175,21 +182,46 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    shareText = 'Nutrition & Weight Maintenance\n' +
+    shareText = AppLocalizations.of(context)!.nutrition +
+        '\n' +
         state1 +
-        '\n\nMood & Activity Level\n' +
+        '\n\n' +
+        AppLocalizations.of(context)!.mood +
+        '\n' +
         state2;
     if (state3 != '')
-      shareText = shareText + '\n\nAbility to Walk & Move\n' + state3;
+      shareText = shareText +
+          '\n\n' +
+          AppLocalizations.of(context)!.ambulation +
+          '\n' +
+          state3;
     if (state4 != '')
-      shareText = shareText + '\n\nAbility of Memory & Attention\n' + state4;
+      shareText = shareText +
+          '\n\n' +
+          AppLocalizations.of(context)!.cognition +
+          '\n' +
+          state4;
     if (state5 != '')
-      shareText = shareText + '\n\nSleep & Circadian Rhythm\n' + state5;
-    if (state6 != '') shareText = shareText + '\n\nPain & Treatment\n' + state6;
+      shareText = shareText +
+          '\n\n' +
+          AppLocalizations.of(context)!.sleep +
+          '\n' +
+          state5;
+    if (state6 != '')
+      shareText = shareText +
+          '\n\n' +
+          AppLocalizations.of(context)!.pain +
+          '\n' +
+          state6;
     if (state7 != '')
-      shareText = shareText + '\n\nSkin Problem & Care\n' + state7;
+      shareText = shareText +
+          '\n\n' +
+          AppLocalizations.of(context)!.skin +
+          '\n' +
+          state7;
     final threadText = shareText;
-    shareText = 'Granny\'s State \( ' +
+    shareText = AppLocalizations.of(context)!.state +
+        ' \( ' +
         DateFormat('yyyy-MM-dd').format(DateTime.now()) +
         ' \)\n\n\n' +
         shareText;
@@ -232,8 +264,10 @@ class _MyHomePageState extends State<MyHomePage> {
       if (imagePaths.length > 1) imagePaths.removeLast();
       imagePaths.add('$tempPath/granny.png');
       Share.shareFiles(imagePaths,
-          subject: 'Granny\'s State, ' +
-              DateFormat('yyyy-MM-dd').format(DateTime.now()),
+          subject: AppLocalizations.of(context)!.state +
+              ' \( ' +
+              DateFormat('yyyy-MM-dd').format(DateTime.now()) +
+              ' \)',
           text: threadText);
     }
 
@@ -258,8 +292,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     _pdf();
                   },
-                  heroTag: 'Share as Save',
-                  tooltip: 'Share as Save',
+                  heroTag: AppLocalizations.of(context)!.share,
+                  tooltip: AppLocalizations.of(context)!.share,
                   child: const Icon(
                     Icons.share,
                     color: Color(0xffedddd4),
@@ -270,7 +304,7 @@ class _MyHomePageState extends State<MyHomePage> {
           leading: IconButton(
               icon: Image.asset('assets/grannystatepic.png'), onPressed: () {}),
           title: Text(
-            'GrannyStatePic',
+            AppLocalizations.of(context).grannystatepic,
             style: TextStyle(color: Color(0xffedddd4)),
           ),
           actions: <Widget>[
@@ -279,7 +313,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Icons.refresh,
                   color: Color(0xffedddd4),
                 ),
-                tooltip: 'Reset',
+                tooltip: AppLocalizations.of(context)!.reset,
                 onPressed: () {
                   setState(() {
                     Navigator.pushReplacement(
@@ -306,11 +340,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ListTile(
                 title: Text(
-                  'Share as Save Granny\'s Pic & State',
+                  AppLocalizations.of(context)!.save,
                   style: TextStyle(color: Color(0xff283d3b)),
                 ),
                 subtitle: Text(
-                  'to assess elderly, get helped',
+                  AppLocalizations.of(context)!.assess,
                   style: TextStyle(
                       color: Color(0xff283d3b), fontWeight: FontWeight.bold),
                 ),
@@ -324,13 +358,13 @@ class _MyHomePageState extends State<MyHomePage> {
                             ? ListTile(
                                 title: isVideo == false
                                     ? Text(
-                                        'Picture',
+                                        AppLocalizations.of(context)!.picture,
                                         style: TextStyle(
                                             fontSize: 16.0,
                                             color: Color(0xffC44536)),
                                       )
                                     : Text(
-                                        'Video',
+                                        AppLocalizations.of(context)!.video,
                                         style: TextStyle(
                                             fontSize: 16.0,
                                             color: Color(0xffC44536)),
@@ -343,7 +377,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ?.fields['image']!.effectiveFocusNode,
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(context,
-                                      errorText: 'required'),
+                                      errorText: AppLocalizations.of(context)!
+                                          .required),
                                 ]),
                                 onChanged: (value) async {
                                   if (value == 'take_picture') {
@@ -398,7 +433,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 decoration: InputDecoration(
                                   labelStyle: TextStyle(
                                       fontSize: 22.0, color: Color(0xffC44536)),
-                                  labelText: 'Picture or Video *',
+                                  labelText: AppLocalizations.of(context)!.or,
                                 ),
                                 options: [
                                   FormBuilderFieldOption(
@@ -419,7 +454,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: state1 != ''
                             ? ListTile(
                                 title: Text(
-                                  'Nutrition & Weight Maintenance',
+                                  AppLocalizations.of(context)!.nutrition,
                                   style: TextStyle(
                                       fontSize: 16.0, color: Color(0xffC44536)),
                                 ),
@@ -439,7 +474,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 },
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(context,
-                                      errorText: 'required'),
+                                      errorText: AppLocalizations.of(context)!
+                                          .required),
                                 ]),
                                 name: 'diet_weight',
                                 decoration: InputDecoration(
@@ -447,7 +483,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         fontSize: 22.0,
                                         color: Color(0xffC44536)),
                                     labelText:
-                                        'Nutrition & Weight Maintenance *'),
+                                        AppLocalizations.of(context)!.weight),
                                 options: [
                                   FormBuilderFieldOption(
                                       value: '1/5', child: Text('1/5')),
@@ -465,7 +501,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: state2 != ''
                             ? ListTile(
                                 title: Text(
-                                  'Mood & Activity Level',
+                                  AppLocalizations.of(context)!.mood,
                                   style: TextStyle(
                                       fontSize: 16.0, color: Color(0xffC44536)),
                                 ),
@@ -487,11 +523,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                 },
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(context,
-                                      errorText: 'required'),
+                                      errorText: AppLocalizations.of(context)!
+                                          .required),
                                 ]),
                                 name: 'mood_activity',
                                 decoration: InputDecoration(
-                                  labelText: 'Mood & Activity Level *',
+                                  labelText:
+                                      AppLocalizations.of(context)!.activity,
                                   labelStyle: TextStyle(
                                       fontSize: 22.0, color: Color(0xffC44536)),
                                 ),
@@ -512,7 +550,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: state3 != ''
                             ? ListTile(
                                 title: Text(
-                                  'Ability to Walk & Move',
+                                  AppLocalizations.of(context)!.ambulation,
                                   style: TextStyle(
                                       fontSize: 16.0, color: Color(0xffC44536)),
                                 ),
@@ -535,7 +573,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     labelStyle: TextStyle(
                                         fontSize: 22.0,
                                         color: Color(0xffC44536)),
-                                    labelText: 'Ability to Walk & Move'),
+                                    labelText: AppLocalizations.of(context)!
+                                        .ambulation),
                                 options: [
                                   FormBuilderFieldOption(
                                       value: '1/5', child: Text('1/5')),
@@ -553,7 +592,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: state4 != ''
                             ? ListTile(
                                 title: Text(
-                                  'Ability of Memory & Attention',
+                                  AppLocalizations.of(context)!.cognition,
                                   style: TextStyle(
                                       fontSize: 16.0, color: Color(0xffC44536)),
                                 ),
@@ -576,7 +615,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     labelStyle: TextStyle(
                                         fontSize: 22.0,
                                         color: Color(0xffC44536)),
-                                    labelText: 'Ability of Memory & Attention'),
+                                    labelText: AppLocalizations.of(context)!
+                                        .cognition),
                                 options: [
                                   FormBuilderFieldOption(
                                       value: '1/5', child: Text('1/5')),
@@ -594,7 +634,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: state5 != ''
                             ? ListTile(
                                 title: Text(
-                                  'Sleep & Circadian Rhythm',
+                                  AppLocalizations.of(context)!.sleep,
                                   style: TextStyle(
                                       fontSize: 16.0, color: Color(0xffC44536)),
                                 ),
@@ -617,7 +657,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     labelStyle: TextStyle(
                                         fontSize: 22.0,
                                         color: Color(0xffC44536)),
-                                    labelText: 'Sleep & Circadian Rhythm'),
+                                    labelText:
+                                        AppLocalizations.of(context)!.sleep),
                                 options: [
                                   FormBuilderFieldOption(
                                       value: '1/5', child: Text('1/5')),
@@ -635,7 +676,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: state6 != ''
                             ? ListTile(
                                 title: Text(
-                                  'Pain & Treatment',
+                                  AppLocalizations.of(context)!.pain,
                                   style: TextStyle(
                                       fontSize: 16.0, color: Color(0xffC44536)),
                                 ),
@@ -658,7 +699,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     labelStyle: TextStyle(
                                         fontSize: 22.0,
                                         color: Color(0xffC44536)),
-                                    labelText: 'Pain & Treatment'),
+                                    labelText:
+                                        AppLocalizations.of(context)!.pain),
                                 options: [
                                   FormBuilderFieldOption(
                                       value: '1/5', child: Text('1/5')),
@@ -676,7 +718,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: state7 != ''
                             ? ListTile(
                                 title: Text(
-                                  'Skin Problem & Care',
+                                  AppLocalizations.of(context)!.skin,
                                   style: TextStyle(
                                       fontSize: 16.0, color: Color(0xffC44536)),
                                 ),
@@ -699,7 +741,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     labelStyle: TextStyle(
                                         fontSize: 22.0,
                                         color: Color(0xffC44536)),
-                                    labelText: 'Skin Problem & Care'),
+                                    labelText:
+                                        AppLocalizations.of(context)!.skin),
                                 options: [
                                   FormBuilderFieldOption(
                                       value: '1/5', child: Text('1/5')),

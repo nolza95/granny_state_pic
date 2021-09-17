@@ -1,0 +1,21 @@
+{
+    "grannystatepic": "GrannyStatePic",
+    "nutrition": "Nutrition & Weight Maintenance",
+    "mood": "Mood & Activity Level",
+    "ambulation": "Ability to Walk & Move",
+    "cognition": "Ability of Memory & Attention",
+    "sleep": "Sleep & Circadian Rhythm",
+    "pain": "Pain & Treatment",
+    "skin": "Skin Problem & Care",
+    "state": "Granny's State",
+    "share": "Share as Save",
+    "reset": "Reset",
+    "save": "Share as Save Granny's Pic & State",
+    "assess": "to assess elderly, get helped by people",
+    "picture": "Picture",
+    "video": "Video",
+    "required": "Required",
+    "or": "Picture or Video *",
+    "weight": "Nutrition & Weight Maintenance *",
+    "activity": "Mood & Activity Level *"
+}
